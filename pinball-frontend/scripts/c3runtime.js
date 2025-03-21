@@ -5076,6 +5076,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.Spritefont2.Acts.SetEffectParam,
 		C3.Behaviors.Pin.Acts.PinByProperties,
+		C3.ScriptsInEvents.Esgame_Event124_Act13,
 		C3.Plugins.Audio.Cnds.IsTagPlaying,
 		C3.Plugins.Audio.Acts.StopAll,
 		C3.Plugins.Mouse.Cnds.IsOverObject
