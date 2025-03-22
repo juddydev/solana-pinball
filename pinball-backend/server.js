@@ -49,17 +49,35 @@ app.post("/update-score", async (req, res) => {
   }
 
   try {
-    const player = await Player.findOneAndUpdate(
-      { address },
-      {
-        score,
-        tokenBalance,
-        lastUpdated: new Date()
-      }, // Increment score and update tokenBalance
-      { upsert: true, new: true }
-    );
-    res.json({ message: "Score updated", player });
+    // Trước tiên, tìm người chơi hiện tại
+    const existingPlayer = await Player.findOne({ address });
+    
+    // Nếu người chơi mới hoặc score mới cao hơn score hiện tại
+    if (!existingPlayer || score > existingPlayer.score) {
+      const player = await Player.findOneAndUpdate(
+        { address },
+        {
+          score,
+          tokenBalance,
+          lastUpdated: new Date()
+        },
+        { upsert: true, new: true }
+      );
+      return res.json({ 
+        message: "Score updated", 
+        player,
+        improved: existingPlayer ? true : false
+      });
+    } else {
+      // Trả về thông báo score không được cập nhật vì không cao hơn
+      return res.json({ 
+        message: "Score not updated, current score is higher", 
+        player: existingPlayer,
+        improved: false
+      });
+    }
   } catch (err) {
+    console.error("Error updating score:", err);
     res.status(500).json({ error: "Database error" });
   }
 });
