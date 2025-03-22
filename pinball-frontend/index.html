@@ -19,72 +19,6 @@
 
 	<link rel="stylesheet" href="style.css">
 
-    <style>
-        .nav-buttons {
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 1000;
-        }
-
-        #connectButton, #leaderboardButton {
-            background: rgba(0, 0, 0, 0.5);
-            color: #4a90e2;
-            border: 1px solid #4a90e2;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-family: monospace;
-            transition: background-color 0.3s;
-        }
-
-        #connectButton:hover, #leaderboardButton:hover {
-            background: rgba(74, 144, 226, 0.2);
-        }
-
-        .wallet-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 8px;
-            margin-top: 5px;
-            z-index: 1001;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-menu button {
-            width: 100%;
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            color: #4a90e2;
-            text-align: center;
-            cursor: pointer;
-            font-family: monospace;
-            transition: background-color 0.3s;
-        }
-
-        .dropdown-menu button:hover {
-            background: rgba(74, 144, 226, 0.2);
-        }
-    </style>
-
 </head> 
  
 <body>
@@ -95,7 +29,9 @@
 				<button id="disconnectButton">Disconnect</button>
 			</div>
 		</div>
-		<a id="leaderboardButton" href="leaderboard.html">Leaderboard</a>
+		<a id="leaderboardButton" href="leaderboard.html">
+            <img src="images/leaderboard.png" alt="Pinball Logo">
+        </a>
 	</div>
 	<script src="box2d.wasm.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>

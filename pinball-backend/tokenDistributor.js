@@ -1,7 +1,7 @@
 const { Connection, PublicKey, Keypair } = require('@solana/web3.js');
 const { Program, AnchorProvider, Wallet, BN } = require('@project-serum/anchor');
 const { TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount } = require('@solana/spl-token');
-const idl = require('../pinball-contract/target/idl/pinball_rewards.json');
+const idl = require('./pinball_rewards.json');
 const keypairFile = require('./token.json');
 
 require('dotenv').config();
@@ -77,11 +77,7 @@ class TokenDistributor {
                 if (finalReward > 0) {
                     rewards.push({
                         wallet_address: player.address,
-                        amount_reward: finalReward,
-                        rank: rank,
-                        baseReward: baseReward,
-                        tokenBalance: player.tokenBalance || 0,
-                        tokenWeight: tokenWeight
+                        amount_reward: finalReward
                     });
                 }
             });
@@ -194,9 +190,9 @@ class TokenDistributor {
     }
 
     /**
-     * Lấy số lượng token của một ví
-     * @param {string} walletAddress - Địa chỉ ví cần kiểm tra
-     * @returns {Promise<number>} Số lượng token (đã convert từ lamports)
+     * Get the token balance of a wallet
+     * @param {string} walletAddress - The wallet address to check
+     * @returns {Promise<number>} Token amount (converted from lamports)
      */
     async getTokenBalance(walletAddress) {
         try {

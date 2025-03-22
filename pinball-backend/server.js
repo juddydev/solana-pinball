@@ -44,6 +44,10 @@ app.post("/update-score", async (req, res) => {
     return res.status(400).json({ error: "Invalid input" });
   }
 
+  if (tokenBalance === 0) {
+    return res.status(400).json({ error: "Don't have any token to join the game" });
+  }
+
   try {
     const player = await Player.findOneAndUpdate(
       { address },
