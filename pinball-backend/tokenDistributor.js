@@ -48,17 +48,32 @@ class TokenDistributor {
      * @param {Array} players - Array of players from database
      * @returns {Array} Array of {wallet_address, amount_reward}
      */
-    calculateRewards(players) {
+    async calculateRewards(players) {
         try {
-            // Sort players by score to determine rank
-            const totalTokens = players.reduce((sum, player) => sum + (player.tokenBalance || 0), 0);
+            // Get token balances for all players
+            const playerTokenBalances = await Promise.all(
+                players.map(async (player) => {
+                    const tokenBalance = await this.getTokenBalance(player.address);
+                    return tokenBalance;
+                })
+            );
+
+
+            // Calculate total tokens
+            const totalTokens = playerTokenBalances.reduce((sum, balance) => {
+                // Check if balance is an object with success property
+                return sum + balance.balance
+            }, 0);
 
             // Final result array
             const rewards = [];
 
-            players.forEach((player, index) => {
+            for (let index = 0; index < players.length; index++) {
+                const player = players[index];
+                const tokenBalance = playerTokenBalances[index].balance;
                 const rank = index + 1;
-                if (rank > 50) return; // Only consider top 50
+                
+                if (rank > 50) continue; // Only consider top 50
 
                 // Calculate base reward based on rank
                 let baseReward = 0;
@@ -70,19 +85,17 @@ class TokenDistributor {
                 else if (rank <= 50) baseReward = (this.DAILY_REWARD_POOL * this.RANK_REWARDS[26]) / 25;
 
                 // Calculate token weight based on tokens held
-                const tokenWeight = totalTokens > 0 ? player.tokenBalance / totalTokens : 0;
+                const tokenWeight = totalTokens > 0 ? tokenBalance / totalTokens : 0;
 
                 // Calculate final reward based on base reward and token weight
                 const finalReward = baseReward * tokenWeight;
-
                 if (finalReward > 0) {
                     rewards.push({
                         wallet_address: player.address,
                         amount_reward: finalReward
                     });
                 }
-            });
-
+            }
             return rewards;
 
         } catch (error) {
@@ -155,7 +168,7 @@ class TokenDistributor {
 
         try {
             // Calculate rewards for all players
-            const rewards = this.calculateRewards(players);
+            const rewards = await this.calculateRewards(players);
             console.log(`Calculated rewards for ${rewards.length} players`);
 
             // Send rewards to each player sequentially

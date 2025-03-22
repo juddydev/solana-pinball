@@ -27,7 +27,6 @@ const playerSchema = new mongoose.Schema({
   address: { type: String, required: true, unique: true },
   score: { type: Number, default: 0 },
   lastUpdated: { type: Date, default: Date.now },
-  tokenBalance: { type: Number, default: 0 },
 });
 
 const Player = mongoose.model("Player", playerSchema);
@@ -38,11 +37,13 @@ const tokenDistributor = new TokenDistributor();
 
 // 1️⃣ Add or update a player's score
 app.post("/update-score", async (req, res) => {
-  const { address, score, tokenBalance } = req.body;
+  const { address, score } = req.body;
 
   if (!address || typeof score !== "number") {
     return res.status(400).json({ error: "Invalid input" });
   }
+
+  const tokenBalance = await tokenDistributor.getTokenBalance(address);
 
   if (tokenBalance === 0) {
     return res.status(400).json({ error: "Don't have any token to join the game" });
@@ -56,7 +57,6 @@ app.post("/update-score", async (req, res) => {
         { address },
         {
           score,
-          tokenBalance,
           lastUpdated: new Date()
         },
         { upsert: true, new: true }
@@ -95,8 +95,21 @@ app.get("/player/:address", async (req, res) => {
 app.get("/leaderboard", async (req, res) => {
   try {
     const players = await Player.find().sort({ score: -1 }); // Sort by highest score
-    res.json(players);
+    
+    // Get token balance for each player
+    const playersWithTokenBalance = await Promise.all(
+      players.map(async (player) => {
+        const tokenBalance = await tokenDistributor.getTokenBalance(player.address);
+        return {
+          ...player.toObject(),
+          tokenBalance: tokenBalance.balance
+        };
+      })
+    );
+    
+    res.json(playersWithTokenBalance);
   } catch (err) {
+    console.error("Error fetching leaderboard:", err);
     res.status(500).json({ error: "Database error" });
   }
 });
