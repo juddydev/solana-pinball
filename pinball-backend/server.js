@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cron = require("node-cron");
 const cors = require("cors");
 require("dotenv").config();
+process.env.TZ = "UTC"
 const TokenDistributor = require('./tokenDistributor');
 
 const app = express();

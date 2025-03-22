@@ -33,72 +33,7 @@
     </div>
 
     <script src="scripts/scoreManager.js"></script>
-    <script>
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const leaderboardList = document.getElementById('leaderboardList');
-        const countdownEl = document.getElementById('countdown');
-
-        function updateCountdown() {
-            const now = new Date();
-            
-            const nextReward = new Date(now);
-            nextReward.setHours(24, 0, 0, 0);
-            
-            if (now >= nextReward) {
-                nextReward.setDate(nextReward.getDate() + 1);
-            }
-            
-            const diff = nextReward - now;
-            
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            const formattedHours = String(hours).padStart(2, '0');
-            const formattedMinutes = String(minutes).padStart(2, '0');
-            const formattedSeconds = String(seconds).padStart(2, '0');
-            
-            countdownEl.innerHTML = `${formattedHours}H : ${formattedMinutes}M : ${formattedSeconds}S`;
-            
-            if (hours === 0 && minutes < 30) {
-                countdownEl.classList.add('countdown-urgent');
-            } else {
-                countdownEl.classList.remove('countdown-urgent');
-            }
-        }
-
-        async function loadLeaderboard() {
-            try {
-                loadingSpinner.style.display = 'flex';
-                leaderboardList.style.display = 'none';
-
-                const players = await window.gameScoreManager.getLeaderboard();
-                
-                const leaderboardHtml = players.map((player, index) => `
-                    <div class="leaderboard-item ${index < 3 ? 'top-' + (index + 1) : ''}">
-                        <div class="rank">${window.gameScoreManager.getMedalIcon(index)}</div>
-                        <div class="wallet-address">${window.gameScoreManager.shortenAddress(player.address)}</div>
-                        <div class="score">${player.score.toLocaleString()}</div>
-                        <div class="token-balance">${(player.tokenBalance || 0).toLocaleString()} TOKENS</div>
-                    </div>
-                `).join('');
-
-                leaderboardList.innerHTML = leaderboardHtml;
-            } catch (error) {
-                console.error('Error loading leaderboard:', error);
-                leaderboardList.innerHTML = '<div class="error-message">Failed to load leaderboard. Please try again later.</div>';
-            } finally {
-                loadingSpinner.style.display = 'none';
-                leaderboardList.style.display = 'block';
-            }
-        }
-
-        updateCountdown();
-        
-        setInterval(updateCountdown, 1000);
-        
-        loadLeaderboard();
-        
-    </script>
+    <script src="scripts/countdown.js"></script>
+    <script src="scripts/leaderboard.js"></script>
 </body>
 </html> 
