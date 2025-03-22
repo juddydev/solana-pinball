@@ -65,9 +65,8 @@ async function testTokenDistributor() {
     
     // 2. Calculate rewards
     console.log('\n=== CALCULATING REWARDS ===');
-    const calculatedRewards = tokenDistributor.calculateRewards(mockPlayers);
+    const calculatedRewards = await tokenDistributor.calculateRewards(mockPlayers);
     
-    console.log('Calculated rewards:');
     console.table(calculatedRewards.map((reward, index) => ({
       Player: index + 1,
       Wallet: reward.wallet_address,
