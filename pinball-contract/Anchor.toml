@@ -4,14 +4,14 @@
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-pinball_contract = "6jViNTPBaRsEASHvkwkWKdtLiSkAQp4e4SW2LN3ZvWWk"
+[programs.devnet]
+pinball_contract = "89JUBNerREHS2pzjJNVUwhMY7whP8EGmh5GrEhr8cBgd"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
