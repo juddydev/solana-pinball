@@ -1,9 +1,9 @@
 "use strict";
 
 (function initScoreManager() {
-    const BACKEND_URL = 'http://localhost:5000';
+    const BACKEND_URL = 'https://pinball-backend.vercel.app';
     const TOKEN_MINT_ADDRESS = '6ALrw1kJZZqN8witRNFYxNYJtReCrf9dCiu35xW474AT';
-    // Hàm helper để lấy token balance
+    // Helper function to get token balance
     async function getTokenBalance(walletAddress) {
         try {
             const connection = new solanaWeb3.Connection(
@@ -11,9 +11,7 @@
                 'confirmed'
             );
 
-            console.log("CONNECTION", connection);
-
-            // Lấy token accounts của ví
+            // Get token accounts for the wallet
             const walletTokenAccounts = await connection.getParsedTokenAccountsByOwner(
                 new solanaWeb3.PublicKey(walletAddress),
                 {
@@ -21,29 +19,27 @@
                 }
             );
 
-            // Kiểm tra và lấy số dư token
+            // Check and retrieve token balance
             if (walletTokenAccounts && walletTokenAccounts.value && walletTokenAccounts.value.length > 0) {
                 const walletTokenAccount = walletTokenAccounts.value[0];
                 const amount = walletTokenAccount.account.data.parsed.info.tokenAmount.uiAmount;
-                console.log(`Token amount: ${amount}`);
+                console.log(`💰 Token amount: ${amount}`);
                 return amount;
             }
 
-            console.log("No token account found, balance is 0");
+            console.log("⚠️ No token account found, balance is 0");
             return 0;
         } catch (error) {
-            console.error('Error fetching token balance:', error);
+            console.error('❌ Error fetching token balance:', error);
             return 0;
         }
     }
 
-    // Gắn vào window object để có thể truy cập từ mọi nơi
+    // Attach to window object to access from anywhere
     window.gameScoreManager = {
         async storeScore(walletAddress, score) {
             try {
-                console.log("🔍 Fetching token balance...");
                 const tokenBalance = await getTokenBalance(walletAddress);
-                console.log("💰 Token balance:", tokenBalance);
 
                 console.log("📤 Sending score and token balance to backend...");
                 const response = await fetch(`${BACKEND_URL}/update-score`, {
@@ -71,7 +67,7 @@
             }
         },
 
-        // Hàm lấy bảng xếp hạng
+        // Function to get leaderboard
         async getLeaderboard() {
             try {
                 const response = await fetch(`${BACKEND_URL}/leaderboard`);
@@ -85,12 +81,12 @@
             }
         },
 
-        // Tiện ích: Rút gọn địa chỉ ví
+        // Utility: Shorten wallet address
         shortenAddress(address) {
             return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
         },
 
-        // Tiện ích: Tạo icon huy chương theo rank
+        // Utility: Create medal icon based on rank
         getMedalIcon(rank) {
             switch (rank) {
                 case 0: return '<i class="fas fa-medal" style="color: gold;"></i>';
@@ -99,23 +95,8 @@
                 default: return `${rank + 1}`;
             }
         },
-
-        // Tiện ích: Tạo stars dựa vào điểm số
-        getStars(score) {
-            const maxScore = 3000;
-            const starCount = Math.min(5, Math.ceil((score / maxScore) * 5));
-            let stars = '';
-            for (let i = 0; i < 5; i++) {
-                if (i < starCount) {
-                    stars += '<i class="fas fa-star" style="color: gold;"></i>';
-                } else {
-                    stars += '<i class="far fa-star" style="color: #666;"></i>';
-                }
-            }
-            return stars;
-        },
     };
 
-    // Log để xác nhận đã khởi tạo
+    // Log to confirm initialization
     console.log("🎮 Score Manager initialized:", window.gameScoreManager);
 })(); 

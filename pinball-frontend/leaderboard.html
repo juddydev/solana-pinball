@@ -36,11 +36,12 @@
 
                 const players = await window.gameScoreManager.getLeaderboard();
                 
-                const leaderboardHtml = players.slice(0, 5).map((player, index) => `
+                const leaderboardHtml = players.map((player, index) => `
                     <div class="leaderboard-item ${index < 3 ? 'top-' + (index + 1) : ''}">
                         <div class="rank">${window.gameScoreManager.getMedalIcon(index)}</div>
                         <div class="wallet-address">${window.gameScoreManager.shortenAddress(player.address)}</div>
                         <div class="score">${player.score.toLocaleString()}</div>
+                        <div class="token-balance">${(player.tokenBalance || 0).toLocaleString()} TOKENS</div>
                     </div>
                 `).join('');
 
@@ -55,7 +56,6 @@
         }
 
         loadLeaderboard();
-        setInterval(loadLeaderboard, 30000);
     </script>
 </body>
 </html> 

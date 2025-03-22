@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     connectButton.addEventListener('click', async () => {
         if (!isWalletConnected) {
             try {
-                // Logic connect wallet hiện tại của bạn
                 await window.solana.connect();
                 isWalletConnected = true;
                 // Get wallet public key and display shortened address
@@ -47,7 +46,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 console.error('Error connecting wallet:', error);
             }
         } else {
-            // Toggle dropdown menu ngay lập tức khi đã connected
             walletDropdown.classList.toggle('show');
         }
     });
@@ -82,16 +80,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
     });
-
-    // Fetch SOL Balance
-    async function fetchSolBalance(publicKey) {
-        try {
-            const balance = await connection.getBalance(new PublicKey(publicKey));
-            const solAmount = (balance / 1e9).toFixed(3); // Convert lamports to SOL
-
-            console.log(`💰 SOL Balance: ${solAmount} SOL`);
-        } catch (err) {
-            console.error("❌ Failed to fetch SOL balance:", err);
-        }
-    }
 });

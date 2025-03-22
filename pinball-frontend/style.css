@@ -123,12 +123,11 @@ html[ioswebview] .c3htmlwrap>* {
 	right: 0;
 	padding: 0 20px;
 	display: flex;
-	justify-content: space-between;
+	justify-content: end;
 	z-index: 1000;
 }
 
-#connectButton,
-#leaderboardButton {
+#connectButton {
 	background: rgba(0, 0, 0, 0.5);
 	color: #4a90e2;
 	border: 1px solid #4a90e2;
@@ -142,10 +141,18 @@ html[ioswebview] .c3htmlwrap>* {
 #leaderboardButton {
 	text-decoration: none;
 	display: inline-block;
+	width: 80px;
+	height: 80px;
+	padding: 0 !important;
 }
 
-#connectButton:hover,
-#leaderboardButton:hover {
+#leaderboardButton img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+#connectButton:hover {
 	background: rgba(74, 144, 226, 0.2);
 }
 

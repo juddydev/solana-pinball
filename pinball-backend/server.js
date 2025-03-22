@@ -7,7 +7,7 @@ const TokenDistributor = require('./tokenDistributor');
 
 const app = express();
 
-// Enable CORS cho tất cả routes
+// Enable CORS for all routes
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST"],
@@ -42,6 +42,10 @@ app.post("/update-score", async (req, res) => {
 
   if (!address || typeof score !== "number") {
     return res.status(400).json({ error: "Invalid input" });
+  }
+
+  if (tokenBalance === 0) {
+    return res.status(400).json({ error: "Don't have any token to join the game" });
   }
 
   try {

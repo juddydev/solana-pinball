@@ -1,0 +1,55 @@
+{
+  "address": "D2J278VrQUgmXMKHPJeSF3RxCGWUp5o6CkxCbTVxncSi",
+  "metadata": {
+    "name": "pinball_rewards",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "distribute_rewards",
+      "discriminator": [
+        97,
+        6,
+        227,
+        255,
+        124,
+        165,
+        3,
+        148
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "treasury",
+          "writable": true
+        },
+        {
+          "name": "receiver",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidInput",
+      "msg": "The number of rewards does not match the number of provided player accounts."
+    }
+  ]
+}
