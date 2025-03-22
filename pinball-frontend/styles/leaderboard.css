@@ -99,12 +99,10 @@ body {
     font-size: 14px;
     font-weight: bold;
     color: #50c878;
-    /* Emerald green color for tokens */
     text-align: right;
     flex-shrink: 0;
 }
 
-/* Animation cho top 3 */
 @keyframes glow {
     0% {
         box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
@@ -179,7 +177,6 @@ body {
     }
 }
 
-/* Style cho nút Back */
 .nav-buttons {
     position: fixed;
     top: 20px;
@@ -225,7 +222,6 @@ body {
     justify-content: center;
     padding: 20px;
     display: none;
-    /* Ẩn mặc định */
 }
 
 .spinner {
