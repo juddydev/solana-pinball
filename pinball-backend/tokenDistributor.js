@@ -1,6 +1,7 @@
 const { Connection, PublicKey, Keypair } = require('@solana/web3.js');
 const { Program, AnchorProvider, Wallet, BN } = require('@project-serum/anchor');
 const { TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount } = require('@solana/spl-token');
+
 const idl = require('./pinball_rewards.json');
 const keypairFile = require('./token.json');
 

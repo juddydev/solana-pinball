@@ -7,7 +7,7 @@ const TokenDistributor = require('./tokenDistributor');
 
 const app = express();
 
-// Enable CORS cho tất cả routes
+// Enable CORS for all routes
 app.use(cors({
   origin: "*",
   methods: ["GET", "POST"],
