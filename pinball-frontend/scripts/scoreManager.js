@@ -3,6 +3,7 @@
 (function initScoreManager() {
     const BACKEND_URL = 'https://pinball-backend.vercel.app';
     const TOKEN_MINT_ADDRESS = '6ALrw1kJZZqN8witRNFYxNYJtReCrf9dCiu35xW474AT';
+    
     // Helper function to get token balance
     async function getTokenBalance(walletAddress) {
         try {
@@ -37,6 +38,9 @@
 
     // Attach to window object to access from anywhere
     window.gameScoreManager = {
+        // Expose getTokenBalance as a public method
+        getTokenBalance: getTokenBalance,
+        
         async storeScore(walletAddress, score) {
             try {
                 const tokenBalance = await getTokenBalance(walletAddress);
