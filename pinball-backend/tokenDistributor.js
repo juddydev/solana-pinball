@@ -197,10 +197,8 @@ class TokenDistributor {
      */
     async getTokenBalance(walletAddress) {
         try {
-            // Convert string address thành PublicKey
             const walletPublicKey = new PublicKey(walletAddress);
 
-            // Lấy associated token account
             const tokenAccount = await getOrCreateAssociatedTokenAccount(
                 this.connection,
                 this.wallet.payer,
@@ -208,10 +206,8 @@ class TokenDistributor {
                 walletPublicKey
             );
 
-            // Lấy thông tin token account
             const balance = await this.connection.getTokenAccountBalance(tokenAccount.address);
 
-            // Convert lamports sang số token thực tế (1 token = 1e9 lamports)
             const actualBalance = balance.value.uiAmount;
 
             return {
