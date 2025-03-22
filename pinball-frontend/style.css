@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
 	padding: 0;
 	margin: 0;
 	overflow: hidden;
@@ -10,12 +11,15 @@ body {
 	color: white;
 }
 
-html, body, canvas {
+html,
+body,
+canvas {
 	touch-action-delay: none;
 	touch-action: none;
 }
 
-canvas, .c3htmlwrap {
+canvas,
+.c3htmlwrap {
 	position: absolute;
 }
 
@@ -27,7 +31,7 @@ canvas, .c3htmlwrap {
 	pointer-events: none;
 }
 
-.c3htmlwrap > * {
+.c3htmlwrap>* {
 	pointer-events: auto;
 }
 
@@ -38,7 +42,7 @@ html[ioswebview] canvas {
 	user-select: none;
 }
 
-html[ioswebview] .c3htmlwrap > * {
+html[ioswebview] .c3htmlwrap>* {
 	-webkit-user-select: auto;
 	user-select: auto;
 }
@@ -105,21 +109,99 @@ html[ioswebview] .c3htmlwrap > * {
 .c3-screen-reader-text {
 	position: absolute;
 	width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(1px, 1px, 1px, 1px);
+	height: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
 }
-#connectButton {
-	position: fixed;  /* Keeps it on top of all content */
-	top: 55px;        /* Adjust as needed */
-	left: 50%;        /* Centers horizontally */
-	transform: translateX(-50%); /* Ensures perfect centering */
-	z-index: 9999;    /* Ensures it's above everything */
-	padding: 10px 20px;
-	font-size: 16px;
-	background-color: #007bff;
-	color: white;
-	border: none;
-	border-radius: 5px;
+
+
+/* Button */
+.nav-buttons {
+	position: fixed;
+	top: 20px;
+	left: 0;
+	right: 0;
+	padding: 0 20px;
+	display: flex;
+	justify-content: space-between;
+	z-index: 1000;
+}
+
+#connectButton,
+#leaderboardButton {
+	background: rgba(0, 0, 0, 0.5);
+	color: #4a90e2;
+	border: 1px solid #4a90e2;
+	padding: 8px 16px;
+	border-radius: 8px;
 	cursor: pointer;
+	font-size: 14px;
+	transition: background-color 0.3s;
+}
+
+#leaderboardButton {
+	text-decoration: none;
+	display: inline-block;
+}
+
+#connectButton:hover,
+#leaderboardButton:hover {
+	background: rgba(74, 144, 226, 0.2);
+}
+
+/* Thêm styles cho dropdown */
+.wallet-container {
+	position: fixed;
+	top: 55px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+}
+
+.dropdown-menu {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	background: rgba(0, 0, 0, 0.8);
+	border-radius: 8px;
+	margin-top: 5px;
+	z-index: 1001;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	overflow: hidden;
+}
+
+.dropdown-menu.show {
+	display: block;
+}
+
+.dropdown-menu button {
+	width: 100%;
+	padding: 8px 16px;
+	background: none;
+	border: none;
+	color: #4a90e2;
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	white-space: nowrap;
+}
+
+.dropdown-menu button:hover {
+	background: rgba(74, 144, 226, 0.2);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+	.nav-buttons {
+		top: 10px;
+		padding: 0 10px;
+	}
+
+	#connectButton,
+	#leaderboardButton {
+		padding: 6px 12px;
+		font-size: 12px;
+	}
 }

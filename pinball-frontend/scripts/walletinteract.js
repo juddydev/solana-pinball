@@ -28,22 +28,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     const RPC_URL = "https://solana-mainnet.g.alchemy.com/v2/LTZ3ivz7ekePzZFhbN_M60_10XzQGpWE"; // Replace with your actual RPC URL
     const connection = new Connection(RPC_URL, "confirmed");
 
-    // Connect to Phantom Wallet
-    connectButton.addEventListener("click", async () => {
+    let isWalletConnected = false;
+
+    const walletDropdown = document.getElementById('walletDropdown');
+    const disconnectButton = document.getElementById('disconnectButton');
+
+    connectButton.addEventListener('click', async () => {
+        if (!isWalletConnected) {
+            try {
+                // Logic connect wallet hiện tại của bạn
+                await window.solana.connect();
+                isWalletConnected = true;
+                // Get wallet public key and display shortened address
+                const publicKey = window.solana.publicKey.toString();
+                const shortenedAddress = publicKey.slice(0, 4) + '...' + publicKey.slice(-4);
+                connectButton.textContent = shortenedAddress;
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+            }
+        } else {
+            // Toggle dropdown menu ngay lập tức khi đã connected
+            walletDropdown.classList.toggle('show');
+        }
+    });
+
+    window.addEventListener('load', async () => {
         try {
-            const resp = await window.solana.connect();
-            const publicKey = resp.publicKey.toString();
+            if (window.solana && window.solana.isConnected) {
+                isWalletConnected = true;
+                connectButton.textContent = 'Connected';
+            }
+        } catch (error) {
+            console.error('Error checking wallet connection:', error);
+        }
+    });
 
-            // Shorten the address for display
-            const shortAddress = `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`;
-            connectButton.textContent = shortAddress;
+    disconnectButton.addEventListener('click', async () => {
+        try {
+            await window.solana.disconnect();
+            isWalletConnected = false;
+            connectButton.textContent = 'Connect Wallet';
+            walletDropdown.classList.remove('show');
+            console.log("✅ Disconnected from wallet");
+        } catch (error) {
+            console.error('Error disconnecting wallet:', error);
+        }
+    });
 
-            console.log("✅ Connected to Phantom Wallet:", publicKey);
-
-            // Fetch and display SOL balance
-            await fetchSolBalance(publicKey);
-        } catch (err) {
-            console.error("❌ Failed to connect to Phantom Wallet:", err);
+    window.addEventListener('click', (event) => {
+        if (!event.target.matches('#connectButton')) {
+            if (walletDropdown && walletDropdown.classList.contains('show')) {
+                walletDropdown.classList.remove('show');
+            }
         }
     });
 

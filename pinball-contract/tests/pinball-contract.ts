@@ -1,15 +1,13 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
-import { PinballRewards } from "../target/types/pinball_rewards";
+import { BN, Program, web3 } from "@coral-xyz/anchor";
 import {
-  TOKEN_PROGRAM_ID,
-  createMint,
   createAssociatedTokenAccount,
-  mintTo,
+  createMint,
   getAccount,
+  mintTo
 } from "@solana/spl-token";
 import { assert } from "chai";
-import { BN, web3 } from "@coral-xyz/anchor";
+import { PinballRewards } from "../target/types/pinball_rewards";
 
 describe("pinball-rewards", () => {
   const program = anchor.workspace.PinballRewards as Program<PinballRewards>;
