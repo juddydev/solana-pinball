@@ -49,10 +49,8 @@ app.post("/update-score", async (req, res) => {
   }
 
   try {
-    // Trước tiên, tìm người chơi hiện tại
     const existingPlayer = await Player.findOne({ address });
     
-    // Nếu người chơi mới hoặc score mới cao hơn score hiện tại
     if (!existingPlayer || score > existingPlayer.score) {
       const player = await Player.findOneAndUpdate(
         { address },
@@ -69,7 +67,6 @@ app.post("/update-score", async (req, res) => {
         improved: existingPlayer ? true : false
       });
     } else {
-      // Trả về thông báo score không được cập nhật vì không cao hơn
       return res.json({ 
         message: "Score not updated, current score is higher", 
         player: existingPlayer,
