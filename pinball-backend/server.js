@@ -52,7 +52,7 @@ app.post("/update-score", async (req, res) => {
     const player = await Player.findOneAndUpdate(
       { address },
       {
-        $inc: { score },
+        score: score,
         tokenBalance: tokenBalance,
         lastUpdated: new Date()
       }, // Increment score and update tokenBalance

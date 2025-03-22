@@ -204,11 +204,17 @@ html[ioswebview] .c3htmlwrap>* {
 	.nav-buttons {
 		top: 10px;
 		padding: 0 10px;
+		right: 40px;
 	}
 
 	#connectButton,
 	#leaderboardButton {
 		padding: 6px 12px;
 		font-size: 12px;
+	}
+
+	#leaderboardButton {
+		width: 54px;
+		height: 54px;
 	}
 }
