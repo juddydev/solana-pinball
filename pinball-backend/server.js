@@ -52,8 +52,8 @@ app.post("/update-score", async (req, res) => {
     const player = await Player.findOneAndUpdate(
       { address },
       {
-        $inc: { score },
-        tokenBalance: tokenBalance,
+        score,
+        tokenBalance,
         lastUpdated: new Date()
       }, // Increment score and update tokenBalance
       { upsert: true, new: true }
