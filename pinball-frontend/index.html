@@ -19,14 +19,24 @@
 
 	<link rel="stylesheet" href="style.css">
 
-
 </head> 
  
 <body>
-	<button id="connectButton">Connect Wallet</button>
+	<div class="nav-buttons">
+		<div class="wallet-container">
+			<button id="connectButton">Connect Wallet</button>
+			<div class="dropdown-menu" id="walletDropdown">
+				<button id="disconnectButton">Disconnect</button>
+			</div>
+		</div>
+		<a id="leaderboardButton" href="leaderboard.html">
+            <img src="images/leaderboard.png" alt="Pinball Logo">
+        </a>
+	</div>
 	<script src="box2d.wasm.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script type="module" src="scripts/walletinteract.js"></script>
+	<script type="module" src="scripts/scoreManager.js"></script>
 	<script src="scripts/modernjscheck.js"></script>
 	<script src="scripts/supportcheck.js"></script>
 	<script src="scripts/offlineclient.js" type="module"></script>

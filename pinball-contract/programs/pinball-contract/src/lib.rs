@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-declare_id!("89JUBNerREHS2pzjJNVUwhMY7whP8EGmh5GrEhr8cBgd");
+declare_id!("D2J278VrQUgmXMKHPJeSF3RxCGWUp5o6CkxCbTVxncSi");
 
 mod errors;
 
@@ -16,9 +16,9 @@ pub mod pinball_rewards {
         let receiver_accounts = &ctx.accounts.receiver;
 
         let cpi_accounts = Transfer {
-            from: treasury.to_account_info(),
-            to: receiver_accounts.to_account_info(),
-            authority: authority.to_account_info(),
+            from: treasury.to_account_info().clone(),
+            to: receiver_accounts.to_account_info().clone(),
+            authority: authority.to_account_info().clone(),
         };
 
         token::transfer(

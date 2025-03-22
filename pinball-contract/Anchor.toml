@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.devnet]
-pinball_contract = "89JUBNerREHS2pzjJNVUwhMY7whP8EGmh5GrEhr8cBgd"
+pinball_contract = "D2J278VrQUgmXMKHPJeSF3RxCGWUp5o6CkxCbTVxncSi"
 
 [registry]
 url = "https://api.apr.dev"

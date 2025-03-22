@@ -1,9 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cron = require("node-cron");
+const cors = require("cors");
 require("dotenv").config();
+const TokenDistributor = require('./tokenDistributor');
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // MongoDB Connection
@@ -17,24 +27,35 @@ const playerSchema = new mongoose.Schema({
   address: { type: String, required: true, unique: true },
   score: { type: Number, default: 0 },
   lastUpdated: { type: Date, default: Date.now },
+  tokenBalance: { type: Number, default: 0 },
 });
 
 const Player = mongoose.model("Player", playerSchema);
+
+const tokenDistributor = new TokenDistributor();
 
 // API Routes
 
 // 1️⃣ Add or update a player's score
 app.post("/update-score", async (req, res) => {
-  const { address, score } = req.body;
+  const { address, score, tokenBalance } = req.body;
 
   if (!address || typeof score !== "number") {
     return res.status(400).json({ error: "Invalid input" });
   }
 
+  if (tokenBalance === 0) {
+    return res.status(400).json({ error: "Don't have any token to join the game" });
+  }
+
   try {
     const player = await Player.findOneAndUpdate(
       { address },
-      { $inc: { score }, lastUpdated: new Date() }, // Increment score
+      {
+        $inc: { score },
+        tokenBalance: tokenBalance,
+        lastUpdated: new Date()
+      }, // Increment score and update tokenBalance
       { upsert: true, new: true }
     );
     res.json({ message: "Score updated", player });
@@ -65,8 +86,13 @@ app.get("/leaderboard", async (req, res) => {
   }
 });
 
-// 4️⃣ Reset scores at midnight (Server Time)
+// 4️⃣ Distribute rewards & Reset scores at midnight (Server Time)
+// 0 0 * * *
 cron.schedule("0 0 * * *", async () => {
+  console.log("Distributing rewards...");
+  const players = await Player.find().sort({ score: -1 });
+  await tokenDistributor.distributeRewards(players);
+  console.log("Rewards distributed.");
   console.log("Resetting all player scores...");
   await Player.updateMany({}, { $set: { score: 0 } });
   console.log("All scores reset to 0.");

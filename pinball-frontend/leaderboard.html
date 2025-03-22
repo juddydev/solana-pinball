@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinball Leaderboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/leaderboard.css">
+</head>
+<body>
+    <div class="nav-buttons">
+        <a id="backButton" href="index.html">Back</a>
+    </div>
+    <div class="leaderboard-container">
+        <div class="leaderboard-header">
+            <h1>LEADERBOARD</h1>
+        </div>
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading leaderboard...</p>
+        </div>
+        <div class="leaderboard-list" id="leaderboardList">
+            <!-- Leaderboard items will be inserted here -->
+        </div>
+    </div>
+
+    <script src="scripts/scoreManager.js"></script>
+    <script>
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const leaderboardList = document.getElementById('leaderboardList');
+
+        async function loadLeaderboard() {
+            try {
+                loadingSpinner.style.display = 'flex';
+                leaderboardList.style.display = 'none';
+
+                const players = await window.gameScoreManager.getLeaderboard();
+                
+                const leaderboardHtml = players.map((player, index) => `
+                    <div class="leaderboard-item ${index < 3 ? 'top-' + (index + 1) : ''}">
+                        <div class="rank">${window.gameScoreManager.getMedalIcon(index)}</div>
+                        <div class="wallet-address">${window.gameScoreManager.shortenAddress(player.address)}</div>
+                        <div class="score">${player.score.toLocaleString()}</div>
+                        <div class="token-balance">${(player.tokenBalance || 0).toLocaleString()} TOKENS</div>
+                    </div>
+                `).join('');
+
+                leaderboardList.innerHTML = leaderboardHtml;
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                leaderboardList.innerHTML = '<div class="error-message">Failed to load leaderboard. Please try again later.</div>';
+            } finally {
+                loadingSpinner.style.display = 'none';
+                leaderboardList.style.display = 'block';
+            }
+        }
+
+        loadLeaderboard();
+    </script>
+</body>
+</html> 
