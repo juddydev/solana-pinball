@@ -14,6 +14,14 @@
     <div class="leaderboard-container">
         <div class="leaderboard-header">
             <h1>LEADERBOARD</h1>
+            <div class="countdown-timer">
+                <div class="countdown-label">
+                    <i class="fas fa-clock"></i> Next reward in:
+                </div>
+                <div id="countdown" class="countdown-value">
+                    --:--:--
+                </div>
+            </div>
         </div>
         <div id="loadingSpinner" class="loading-spinner">
             <div class="spinner"></div>
@@ -28,6 +36,36 @@
     <script>
         const loadingSpinner = document.getElementById('loadingSpinner');
         const leaderboardList = document.getElementById('leaderboardList');
+        const countdownEl = document.getElementById('countdown');
+
+        function updateCountdown() {
+            const now = new Date();
+            
+            const nextReward = new Date(now);
+            nextReward.setHours(24, 0, 0, 0);
+            
+            if (now >= nextReward) {
+                nextReward.setDate(nextReward.getDate() + 1);
+            }
+            
+            const diff = nextReward - now;
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            
+            countdownEl.innerHTML = `${formattedHours}H : ${formattedMinutes}M : ${formattedSeconds}S`;
+            
+            if (hours === 0 && minutes < 30) {
+                countdownEl.classList.add('countdown-urgent');
+            } else {
+                countdownEl.classList.remove('countdown-urgent');
+            }
+        }
 
         async function loadLeaderboard() {
             try {
@@ -55,7 +93,12 @@
             }
         }
 
+        updateCountdown();
+        
+        setInterval(updateCountdown, 1000);
+        
         loadLeaderboard();
+        
     </script>
 </body>
 </html> 

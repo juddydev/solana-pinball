@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: monospace, sans-serif;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     color: white;
     min-height: 100vh;
@@ -254,4 +254,71 @@ body {
     background: rgba(255, 68, 68, 0.1);
     border-radius: 8px;
     margin: 10px 0;
+}
+
+/* Countdown Timer Styles */
+.countdown-timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.countdown-label {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.countdown-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a90e2;
+    letter-spacing: 2px;
+}
+
+/* Animation cho đếm ngược khi sắp hết giờ */
+@keyframes pulse {
+    0% {
+        color: #4a90e2;
+    }
+
+    50% {
+        color: #ff6b6b;
+    }
+
+    100% {
+        color: #4a90e2;
+    }
+}
+
+.countdown-urgent {
+    animation: pulse 1.5s infinite;
+    color: #ff6b6b;
+}
+
+/* Desktop styles */
+@media (min-width: 768px) {
+    .countdown-timer {
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+        padding: 12px 20px;
+    }
+
+    .countdown-label {
+        margin-bottom: 0;
+    }
+
+    .countdown-value {
+        font-size: 28px;
+    }
 }
