@@ -73,7 +73,7 @@ class TokenDistributor {
                 const tokenBalance = playerTokenBalances[index].balance;
                 const rank = index + 1;
                 
-                if (rank > 50) continue; // Only consider top 50
+                if (rank > 50  || player.score === 0) continue; // Only consider top 50
 
                 // Calculate base reward based on rank
                 let baseReward = 0;

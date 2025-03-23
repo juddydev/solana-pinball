@@ -117,14 +117,50 @@ app.get("/leaderboard", async (req, res) => {
 
 // 4️⃣ Distribute rewards & Reset scores at midnight (Server Time)
 // 0 0 * * *
-cron.schedule("0 0 * * *", async () => {
-  console.log("Distributing rewards...");
-  const players = await Player.find().sort({ score: -1 });
-  await tokenDistributor.distributeRewards(players);
-  console.log("Rewards distributed.");
-  console.log("Resetting all player scores...");
-  await Player.updateMany({}, { $set: { score: 0 } });
-  console.log("All scores reset to 0.");
+// cron.schedule('*/2 * * * *', async () => {
+//   console.log("Distributing rewards...");
+//   const players = await Player.find().sort({ score: -1 });
+//   await tokenDistributor.distributeRewards(players);
+//   console.log("Rewards distributed.");
+//   console.log("Resetting all player scores...");
+//   await Player.updateMany({}, { $set: { score: 0 } });
+//   console.log("All scores reset to 0.");
+// }, {
+//   timezone: "UTC"
+// });
+
+app.get("/api/distribute-rewards", async (req, res) => {
+  try {
+    // Detect if the request is from Vercel Cron
+    const authHeader = req.headers.authorization;
+    if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.log("Distributing rewards at", new Date().toISOString());
+    const players = await Player.find().sort({ score: -1 });
+    
+    const distributionResult = await tokenDistributor.distributeRewards(players);
+    
+    console.log("Rewards distributed.");
+    console.log("Resetting all player scores...");
+    
+    await Player.updateMany({}, { $set: { score: 0 } });
+    
+    console.log("All scores reset to 0.");
+    
+    return res.status(200).json({
+      success: true,
+      message: "Rewards distributed and scores reset",
+      distributionResult
+    });
+  } catch (error) {
+    console.error("Error in distribute-rewards cron:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
 // Start Server
