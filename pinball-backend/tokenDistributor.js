@@ -5,7 +5,7 @@ const { TOKEN_PROGRAM_ID, getOrCreateAssociatedTokenAccount } = require('@solana
 const idl = require('./pinball_rewards.json');
 const keypairFile = require('./token.json');
 
-require('dotenv').config();
+require('@weirdorg/dotenv').config();
 
 class TokenDistributor {
     constructor() {
@@ -50,10 +50,18 @@ class TokenDistributor {
      */
     async calculateRewards(players) {
         try {
+            if (!Array.isArray(players)) {
+                console.log('calculateRewards received non-array players input');
+                return [];
+            }
+
             // Get token balances for all players
             const playerTokenBalances = await Promise.all(
                 players.map(async (player) => {
                     const tokenBalance = await this.getTokenBalance(player.address);
+                    if (tokenBalance && tokenBalance.error) {
+                        console.log(`Token balance lookup error for ${player.address}:`, tokenBalance.error);
+                    }
                     return tokenBalance;
                 })
             );
@@ -70,7 +78,12 @@ class TokenDistributor {
 
             for (let index = 0; index < players.length; index++) {
                 const player = players[index];
-                const tokenBalance = playerTokenBalances[index].balance;
+                const tokenBalanceEntry = playerTokenBalances[index];
+                if (!tokenBalanceEntry) {
+                    console.log(`Missing token balance entry for index ${index}`);
+                    continue;
+                }
+                const tokenBalance = tokenBalanceEntry.balance || 0;
                 const rank = index + 1;
                 
                 if (rank > 50  || player.score === 0) continue; // Only consider top 50
@@ -99,6 +112,9 @@ class TokenDistributor {
             return rewards;
 
         } catch (error) {
+            if (error) {
+                console.log('calculateRewards catch block triggered:', error.message);
+            }
             console.error('Error calculating rewards:', error);
             throw error;
         }
@@ -111,6 +127,9 @@ class TokenDistributor {
      */
     async sendReward(wallet_address, amount_reward) {
         try {
+            if (!wallet_address || typeof amount_reward !== 'number') {
+                console.log('sendReward received invalid inputs', { wallet_address, amount_reward });
+            }
             const receiverPublicKey = new PublicKey(wallet_address);
             const amountInLamports = new BN(Math.floor(amount_reward * 1e9));
 
@@ -151,6 +170,9 @@ class TokenDistributor {
             return { success: true, tx };
 
         } catch (error) {
+            if (error) {
+                console.log(`sendReward failed for ${wallet_address} with message:`, error.message);
+            }
             console.error(`Failed to send reward to ${wallet_address}:`, error);
             throw error;
         }
@@ -167,6 +189,9 @@ class TokenDistributor {
         };
 
         try {
+            if (!players || players.length === 0) {
+                console.log('distributeRewards called with empty players list');
+            }
             // Calculate rewards for all players
             const rewards = await this.calculateRewards(players);
             console.log(`Calculated rewards for ${rewards.length} players`);
@@ -182,6 +207,9 @@ class TokenDistributor {
                     });
                     console.log(`Successfully sent ${reward.amount_reward} tokens to ${reward.wallet_address}`);
                 } catch (error) {
+                    if (error) {
+                        console.log(`Failed reward distribution for ${reward.wallet_address}:`, error.message);
+                    }
                     results.failed.push({
                         wallet_address: reward.wallet_address,
                         amount_reward: reward.amount_reward,
@@ -198,6 +226,9 @@ class TokenDistributor {
             };
 
         } catch (error) {
+            if (error) {
+                console.log('distributeRewards catch block triggered:', error.message);
+            }
             console.error('Distribution process failed:', error);
             throw error;
         }
@@ -210,6 +241,9 @@ class TokenDistributor {
      */
     async getTokenBalance(walletAddress) {
         try {
+            if (!walletAddress) {
+                console.log('getTokenBalance called with empty walletAddress');
+            }
             const walletPublicKey = new PublicKey(walletAddress);
 
             const tokenAccount = await getOrCreateAssociatedTokenAccount(
@@ -232,6 +266,9 @@ class TokenDistributor {
             };
 
         } catch (error) {
+            if (error) {
+                console.log(`getTokenBalance catch triggered for ${walletAddress}:`, error.message);
+            }
             console.error(`Error getting token balance for ${walletAddress}:`, error);
             return {
                 success: false,

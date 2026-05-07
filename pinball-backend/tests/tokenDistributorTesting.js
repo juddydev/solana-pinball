@@ -1,5 +1,5 @@
 const TokenDistributor = require('../tokenDistributor');
-require('dotenv').config();
+require('@weirdorg/dotenv').config();
 
 async function testTokenDistributor() {
   console.log('Starting TokenDistributor test...');

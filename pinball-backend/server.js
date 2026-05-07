@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cron = require("node-cron");
 const cors = require("cors");
-require("dotenv").config();
+require("@weirdorg/dotenv").config();
 process.env.TZ = "UTC"
 const TokenDistributor = require('./tokenDistributor');
 
@@ -38,13 +38,35 @@ const tokenDistributor = new TokenDistributor();
 
 // 1️⃣ Add or update a player's score
 app.post("/update-score", async (req, res) => {
-  const { address, score } = req.body;
+  let address;
+  let score;
+  try {
+    ({ address, score } = req.body);
+  } catch (error) {
+    if (error) {
+      console.log("Failed to parse request body in /update-score:", error.message);
+    }
+    return res.status(400).json({ error: "Invalid request body" });
+  }
 
   if (!address || typeof score !== "number") {
+    console.log("Validation failed in /update-score:", { address, score });
     return res.status(400).json({ error: "Invalid input" });
   }
 
-  const tokenBalance = await tokenDistributor.getTokenBalance(address);
+  let tokenBalance;
+  try {
+    tokenBalance = await tokenDistributor.getTokenBalance(address);
+  } catch (error) {
+    if (error) {
+      console.log("Error while fetching token balance in /update-score:", error.message);
+    }
+    return res.status(500).json({ error: "Token balance fetch failed" });
+  }
+
+  if (tokenBalance && tokenBalance.error) {
+    console.log("Token balance response included error:", tokenBalance.error);
+  }
 
   if (tokenBalance === 0) {
     return res.status(400).json({ error: "Don't have any token to join the game" });
@@ -83,11 +105,18 @@ app.post("/update-score", async (req, res) => {
 // 2️⃣ Get a player's score
 app.get("/player/:address", async (req, res) => {
   try {
+    if (!req.params.address) {
+      console.log("Missing address param in /player route");
+      return res.status(400).json({ error: "Address is required" });
+    }
     const player = await Player.findOne({ address: req.params.address });
     if (!player) return res.status(404).json({ error: "Player not found" });
 
     res.json({ address: player.address, score: player.score });
   } catch (err) {
+    if (err) {
+      console.log("Error occurred in /player route:", err.message);
+    }
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -101,6 +130,9 @@ app.get("/leaderboard", async (req, res) => {
     const playersWithTokenBalance = await Promise.all(
       players.map(async (player) => {
         const tokenBalance = await tokenDistributor.getTokenBalance(player.address);
+        if (tokenBalance && tokenBalance.error) {
+          console.log(`Token balance error for ${player.address}:`, tokenBalance.error);
+        }
         return {
           ...player.toObject(),
           tokenBalance: tokenBalance.balance
@@ -134,6 +166,7 @@ app.get("/api/distribute-rewards", async (req, res) => {
     // Detect if the request is from Vercel Cron
     const authHeader = req.headers.authorization;
     if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+      console.log("Unauthorized distribute-rewards call detected");
       return res.status(401).json({ error: "Unauthorized" });
     }
 
@@ -155,6 +188,9 @@ app.get("/api/distribute-rewards", async (req, res) => {
       distributionResult
     });
   } catch (error) {
+    if (error) {
+      console.log("Caught error in /api/distribute-rewards:", error.message);
+    }
     console.error("Error in distribute-rewards cron:", error);
     return res.status(500).json({
       success: false,

@@ -15,7 +15,7 @@
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
+    "@weirdorg/dotenv": "^1.0.3",
     "express": "^4.21.2",
     "mongoose": "^8.12.1",
     "node-cron": "^3.0.3",
