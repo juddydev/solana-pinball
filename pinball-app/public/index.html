@@ -29,6 +29,18 @@
 				<button id="disconnectButton">Disconnect</button>
 			</div>
 		</div>
+
+		<div id="walletPickerModal" class="wallet-picker-modal" aria-hidden="true">
+			<div class="wallet-picker-panel" role="dialog" aria-labelledby="walletPickerTitle">
+				<div class="wallet-picker-header">
+					<h2 id="walletPickerTitle">Connect a wallet</h2>
+					<button type="button" id="walletPickerClose" class="wallet-picker-close" aria-label="Close">&times;</button>
+				</div>
+				<p class="wallet-picker-subtitle">Choose a Solana wallet to play and save scores</p>
+				<div id="walletPickerList" class="wallet-picker-list"></div>
+			</div>
+		</div>
+
 		<a id="leaderboardButton" href="leaderboard.html">
             <img src="images/leaderboard.png" alt="Pinball Logo">
         </a>
@@ -36,7 +48,8 @@
 	<script src="box2d.wasm.js"></script>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 	<script type="module" src="scripts/scoreManager.js"></script>
-    <script type="module" src="scripts/walletinteract.js"></script>
+	<script src="scripts/walletManager.js"></script>
+    <script src="scripts/walletinteract.js"></script>
 	<script src="scripts/modernjscheck.js"></script>
 	<script src="scripts/supportcheck.js"></script>
 	<script src="scripts/offlineclient.js" type="module"></script>

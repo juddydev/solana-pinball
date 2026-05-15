@@ -33,7 +33,27 @@ const playerSchema = new mongoose.Schema({
 });
 
 const Player = mongoose.model("Player", playerSchema);
-const tokenDistributor = new TokenDistributor();
+
+let tokenDistributor = null;
+let tokenDistributorInitError = null;
+
+function getTokenDistributor() {
+  if (tokenDistributor) return tokenDistributor;
+  if (tokenDistributorInitError) return null;
+
+  try {
+    tokenDistributor = new TokenDistributor();
+    console.log("TokenDistributor initialized");
+    return tokenDistributor;
+  } catch (err) {
+    tokenDistributorInitError = err;
+    console.warn(
+      "TokenDistributor not available (check .env Solana keys):",
+      err.message
+    );
+    return null;
+  }
+}
 
 app.post("/update-score", async (req, res) => {
   let address;
@@ -52,23 +72,28 @@ app.post("/update-score", async (req, res) => {
     return res.status(400).json({ error: "Invalid input" });
   }
 
-  let tokenBalance;
-  try {
-    tokenBalance = await tokenDistributor.getTokenBalance(address);
-  } catch (error) {
-    if (error) {
-      console.log("Error while fetching token balance in /update-score:", error.message);
+  const distributor = getTokenDistributor();
+  if (distributor) {
+    let tokenBalance;
+    try {
+      tokenBalance = await distributor.getTokenBalance(address);
+    } catch (error) {
+      if (error) {
+        console.log("Error while fetching token balance in /update-score:", error.message);
+      }
+      return res.status(500).json({ error: "Token balance fetch failed" });
     }
-    return res.status(500).json({ error: "Token balance fetch failed" });
-  }
 
-  if (tokenBalance && tokenBalance.error) {
-    console.log("Token balance response included error:", tokenBalance.error);
-  }
+    if (tokenBalance && tokenBalance.error) {
+      console.log("Token balance response included error:", tokenBalance.error);
+    }
 
-  const balance = tokenBalance?.balance ?? 0;
-  if (balance === 0) {
-    return res.status(400).json({ error: "Don't have any token to join the game" });
+    const balance = tokenBalance?.balance ?? 0;
+    if (balance === 0) {
+      return res.status(400).json({ error: "Don't have any token to join the game" });
+    }
+  } else {
+    console.warn("Skipping token balance check — Solana not configured in .env");
   }
 
   try {
@@ -123,9 +148,13 @@ app.get("/leaderboard", async (req, res) => {
   try {
     const players = await Player.find().sort({ score: -1 });
 
+    const distributor = getTokenDistributor();
     const playersWithTokenBalance = await Promise.all(
       players.map(async (player) => {
-        const tokenBalance = await tokenDistributor.getTokenBalance(player.address);
+        if (!distributor) {
+          return { ...player.toObject(), tokenBalance: 0 };
+        }
+        const tokenBalance = await distributor.getTokenBalance(player.address);
         if (tokenBalance && tokenBalance.error) {
           console.log(`Token balance error for ${player.address}:`, tokenBalance.error);
         }
@@ -154,7 +183,15 @@ app.get("/api/distribute-rewards", async (req, res) => {
     console.log("Distributing rewards at", new Date().toISOString());
     const players = await Player.find().sort({ score: -1 });
 
-    const distributionResult = await tokenDistributor.distributeRewards(players);
+    const distributor = getTokenDistributor();
+    if (!distributor) {
+      return res.status(503).json({
+        success: false,
+        error: "Solana rewards not configured. Set PROGRAM_ID, TOKEN_MINT_ADDRESS, and TREASURY_ACCOUNT in .env",
+      });
+    }
+
+    const distributionResult = await distributor.distributeRewards(players);
 
     console.log("Rewards distributed.");
     console.log("Resetting all player scores...");

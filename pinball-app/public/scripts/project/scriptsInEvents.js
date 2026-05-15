@@ -14,9 +14,12 @@ const scriptsInEvents = {
 				value: window.gameScoreManager
 			});
 
-			// Check if wallet is connected
-			if (window.solana && window.solana.publicKey) {
-				const walletAddress = window.solana.publicKey.toString();
+			// Check if wallet is connected (multi-wallet via pinballWallet, fallback to solana)
+			const walletAddress =
+				window.pinballWallet?.getAddress?.() ||
+				(window.solana?.publicKey ? window.solana.publicKey.toString() : null);
+
+			if (walletAddress) {
 				console.log("📍 Wallet address:", walletAddress);
 
 				// Check if gameScoreManager exists
