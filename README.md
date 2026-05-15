@@ -1,111 +1,38 @@
-# 🎰 Solana Pinball
+# Solana Pinball
 
-A real-time Web3 pinball game built on Solana.
+A Web3 pinball game on Solana. Connect a wallet, play, and sync scores with the API.
 
-Players can connect their wallet, play pinball, and interact with blockchain-powered game mechanics through a modern fullstack architecture.
+## App (`pinball-app`)
 
-# 📦 Repositories
+Backend (Express + MongoDB + Solana) and frontend (static Construct export) live in one folder:
 
-## Frontend
-https://github.com/juddydev/solana-pinball/tree/main/pinball-frontend
+- **API** — `server.js`, `tokenDistributor.js`, etc.
+- **UI** — `public/` (HTML, scripts, assets)
 
-## Backend
-https://github.com/juddydev/solana-pinball/tree/main/pinball-backend
+One install and one start command serves both on the same port.
 
----
-
-# ✨ Features
-
-- 🎮 Pinball gameplay
-- 🔗 Solana wallet integration
-- ⚡ Real-time backend communication
-- 🪙 Web3 functionality
-- 📱 Responsive UI
-- 🚀 Fullstack architecture
-
----
-
-# 🛠️ Tech Stack
-
-## Frontend
-- React.js
-- TypeScript
-- TailwindCSS
-- Vite
-
-## Backend
-- Node.js
-- Express.js
-- MongoDB
-- Socket.IO
-
-## Blockchain
-- Solana Web3.js
-- Wallet Adapter
-
----
-
-# 🚀 Getting Started
-
-## Clone Repository
+## Setup
 
 ```bash
-git clone https://github.com/juddydev/solana-pinball.git
-```
-
----
-
-# 📂 Frontend Setup
-
-```bash
-cd pinball-frontend
-
+cd pinball-app
+cp .env.example .env   # then fill in values
 npm install
-
-npm run dev
+npm run dev            # or: npm start
 ```
 
-Frontend runs on:
+Open:
 
-```bash
-http://localhost:5173
-```
+- Game: http://localhost:5000
+- Leaderboard: http://localhost:5000/leaderboard.html
 
----
+## Environment
 
-# 📂 Backend Setup
+See `pinball-app/.env.example` for `MONGO_URI`, Solana RPC, program IDs, and `CRON_SECRET`.
 
-```bash
-cd pinball-backend
+## Contract
 
-npm install
+Solana program sources are in `pinball-contract/` (Anchor).
 
-npm run start
-```
+## Deploy
 
-Backend runs on:
-
-```bash
-http://localhost:5000
-```
-
----
-
-# 📌 Roadmap
-
-- [ ] Multiplayer mode
-- [ ] On-chain leaderboard
-- [ ] NFT rewards
-- [ ] Tournament system
-- [ ] Mobile optimization
-- [ ] Sound effects & music
-
----
-
-# 🤝 Contributing
-
-Pull requests are welcome.
-
-For major changes, please open an issue first to discuss what you would like to change.
-
----
+Vercel config is in `pinball-app/vercel.json`. Set the Vercel project root to `pinball-app`.
