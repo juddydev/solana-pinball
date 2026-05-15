@@ -1,29 +1,31 @@
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
-const cron = require("node-cron");
 const cors = require("cors");
 require("@weirdorg/dotenv").config();
-process.env.TZ = "UTC"
-const TokenDistributor = require('./tokenDistributor');
+
+process.env.TZ = "UTC";
+
+const TokenDistributor = require("./tokenDistributor");
 
 const app = express();
+const publicDir = path.join(__dirname, "public");
 
-// Enable CORS for all routes
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: false,
+  })
+);
 
 app.use(express.json());
 
-// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Player Schema
 const playerSchema = new mongoose.Schema({
   address: { type: String, required: true, unique: true },
   score: { type: Number, default: 0 },
@@ -31,12 +33,8 @@ const playerSchema = new mongoose.Schema({
 });
 
 const Player = mongoose.model("Player", playerSchema);
-
 const tokenDistributor = new TokenDistributor();
 
-// API Routes
-
-// 1️⃣ Add or update a player's score
 app.post("/update-score", async (req, res) => {
   let address;
   let score;
@@ -68,41 +66,41 @@ app.post("/update-score", async (req, res) => {
     console.log("Token balance response included error:", tokenBalance.error);
   }
 
-  if (tokenBalance === 0) {
+  const balance = tokenBalance?.balance ?? 0;
+  if (balance === 0) {
     return res.status(400).json({ error: "Don't have any token to join the game" });
   }
 
   try {
     const existingPlayer = await Player.findOne({ address });
-    
+
     if (!existingPlayer || score > existingPlayer.score) {
       const player = await Player.findOneAndUpdate(
         { address },
         {
           score,
-          lastUpdated: new Date()
+          lastUpdated: new Date(),
         },
         { upsert: true, new: true }
       );
-      return res.json({ 
-        message: "Score updated", 
+      return res.json({
+        message: "Score updated",
         player,
-        improved: existingPlayer ? true : false
-      });
-    } else {
-      return res.json({ 
-        message: "Score not updated, current score is higher", 
-        player: existingPlayer,
-        improved: false
+        improved: true,
       });
     }
+
+    return res.json({
+      message: "Score not updated, current score is higher",
+      player: existingPlayer,
+      improved: false,
+    });
   } catch (err) {
     console.error("Error updating score:", err);
     res.status(500).json({ error: "Database error" });
   }
 });
 
-// 2️⃣ Get a player's score
 app.get("/player/:address", async (req, res) => {
   try {
     if (!req.params.address) {
@@ -121,12 +119,10 @@ app.get("/player/:address", async (req, res) => {
   }
 });
 
-// 3️⃣ Get all player scores
 app.get("/leaderboard", async (req, res) => {
   try {
-    const players = await Player.find().sort({ score: -1 }); // Sort by highest score
-    
-    // Get token balance for each player
+    const players = await Player.find().sort({ score: -1 });
+
     const playersWithTokenBalance = await Promise.all(
       players.map(async (player) => {
         const tokenBalance = await tokenDistributor.getTokenBalance(player.address);
@@ -135,11 +131,11 @@ app.get("/leaderboard", async (req, res) => {
         }
         return {
           ...player.toObject(),
-          tokenBalance: tokenBalance.balance
+          tokenBalance: tokenBalance?.balance ?? 0,
         };
       })
     );
-    
+
     res.json(playersWithTokenBalance);
   } catch (err) {
     console.error("Error fetching leaderboard:", err);
@@ -147,23 +143,8 @@ app.get("/leaderboard", async (req, res) => {
   }
 });
 
-// 4️⃣ Distribute rewards & Reset scores at midnight (Server Time)
-// 0 0 * * *
-// cron.schedule('*/2 * * * *', async () => {
-//   console.log("Distributing rewards...");
-//   const players = await Player.find().sort({ score: -1 });
-//   await tokenDistributor.distributeRewards(players);
-//   console.log("Rewards distributed.");
-//   console.log("Resetting all player scores...");
-//   await Player.updateMany({}, { $set: { score: 0 } });
-//   console.log("All scores reset to 0.");
-// }, {
-//   timezone: "UTC"
-// });
-
 app.get("/api/distribute-rewards", async (req, res) => {
   try {
-    // Detect if the request is from Vercel Cron
     const authHeader = req.headers.authorization;
     if (!authHeader || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       console.log("Unauthorized distribute-rewards call detected");
@@ -172,20 +153,20 @@ app.get("/api/distribute-rewards", async (req, res) => {
 
     console.log("Distributing rewards at", new Date().toISOString());
     const players = await Player.find().sort({ score: -1 });
-    
+
     const distributionResult = await tokenDistributor.distributeRewards(players);
-    
+
     console.log("Rewards distributed.");
     console.log("Resetting all player scores...");
-    
+
     await Player.updateMany({}, { $set: { score: 0 } });
-    
+
     console.log("All scores reset to 0.");
-    
+
     return res.status(200).json({
       success: true,
       message: "Rewards distributed and scores reset",
-      distributionResult
+      distributionResult,
     });
   } catch (error) {
     if (error) {
@@ -194,11 +175,24 @@ app.get("/api/distribute-rewards", async (req, res) => {
     console.error("Error in distribute-rewards cron:", error);
     return res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
     });
   }
 });
 
-// Start Server
+app.use(express.static(publicDir));
+
+app.get("*", (req, res, next) => {
+  if (req.method !== "GET") return next();
+  const filePath = path.join(publicDir, req.path);
+  if (path.extname(req.path)) {
+    return res.status(404).send("Not found");
+  }
+  const page = req.path.endsWith("leaderboard") ? "leaderboard.html" : "index.html";
+  res.sendFile(path.join(publicDir, page));
+});
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`API and frontend: http://localhost:${PORT}`);
+});

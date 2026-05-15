@@ -1,2 +1,3 @@
 .env
-pinball-backend/node_modules
+node_modules/
+pinball-app/node_modules/

@@ -243,26 +243,37 @@ class TokenDistributor {
         try {
             if (!walletAddress) {
                 console.log('getTokenBalance called with empty walletAddress');
+                return {
+                    success: false,
+                    wallet_address: walletAddress,
+                    error: 'Missing wallet address',
+                    balance: 0
+                };
             }
             const walletPublicKey = new PublicKey(walletAddress);
 
-            const tokenAccount = await getOrCreateAssociatedTokenAccount(
-                this.connection,
-                this.wallet.payer,
-                this.tokenMint,
-                walletPublicKey
+            const parsed = await this.connection.getParsedTokenAccountsByOwner(
+                walletPublicKey,
+                { mint: this.tokenMint }
             );
 
-            const balance = await this.connection.getTokenAccountBalance(tokenAccount.address);
+            if (!parsed.value.length) {
+                return {
+                    success: true,
+                    wallet_address: walletAddress,
+                    balance: 0,
+                    decimals: 0
+                };
+            }
 
-            const actualBalance = balance.value.uiAmount;
+            const tokenAmount = parsed.value[0].account.data.parsed.info.tokenAmount;
 
             return {
                 success: true,
                 wallet_address: walletAddress,
-                token_account: tokenAccount.address.toString(),
-                balance: actualBalance,
-                decimals: balance.value.decimals
+                token_account: parsed.value[0].pubkey.toString(),
+                balance: tokenAmount.uiAmount,
+                decimals: tokenAmount.decimals
             };
 
         } catch (error) {
@@ -273,7 +284,8 @@ class TokenDistributor {
             return {
                 success: false,
                 wallet_address: walletAddress,
-                error: error.message
+                error: error.message,
+                balance: 0
             };
         }
     }
